@@ -3,63 +3,73 @@ using System.Collections.Generic;
 using System.Text;
 namespace csharptest
 {
-    class MyList<T>
+    class MyLinkedListNode<T>
     {
-        const int DEFAULT_SIZE = 1;
-        T[] _data = new T[DEFAULT_SIZE];
+        public T Data;
+        public MyLinkedListNode<T> Next;
+        public MyLinkedListNode<T> Prev;
 
-        public int Count = 0; // data used
-        public int Capacity { get { return _data.Length; } } // data reserved
+    }
 
-        public void Add(T item)
+    class MyLinkedList<T>
+    {
+        public MyLinkedListNode<T> Head = null; // First room
+        public MyLinkedListNode<T> Tail = null; // Last room
+        public int Count = 0;
+
+        public MyLinkedListNode<T> AddLast(T data)
         {
-            // check available space
-            if (Count >= Capacity)
+            MyLinkedListNode<T> newRoom = new MyLinkedListNode<T>();
+            newRoom.Data = data;
+
+            // if no head in list
+            if (Head == null)
+                Head = newRoom;
+
+            // if tail in list
+            if (Tail != null)
             {
-                // 공간을 확보한다
-                T[] newArray = new T[Count * 2];
-                for (int i = 0; i < Count; i++)
-                    newArray[i] = _data[i];
-                _data = newArray;
+                Tail.Next = newRoom;
+                newRoom.Prev = Tail;
             }
-            // data add
-            _data[Count] = item;
+
+            Tail = newRoom;
             Count++;
-
+            return newRoom;
         }
-
-        public T this[int index] 
+        public void Remove(MyLinkedListNode<T> room)
         {
-            get { return _data[index]; } 
-            set { _data[index] = value; }
-        }
+            if (Head == room)
+                Head = Head.Next;
 
-        public void RemoveAt(int index)
-        {
-            for (int i = index; i < Count - 1; i++)
-            {
-                _data[i] = _data[i + 1];
-            }
-            _data[Count - 1] = default(T); // 마지막 배열의 원소를 없애준다
+            if (Tail == room)
+                Tail = Tail.Prev;
+
+            if (room.Prev != null)
+                room.Prev.Next = room.Next;
+
+            if (room.Next != null)
+                room.Next.Prev = room.Prev;
+
             Count--;
+
+
         }
     }
+
     class Board
     {
         public int[] _data = new int[25]; // 배열
-        public List<int> _data2 = new List<int>(); // 동적배열  
-        public LinkedList<int> _data3 = new LinkedList<int>(); // 연결리스트
+        public MyLinkedList<int> _data3 = new MyLinkedList<int>(); // 연결리스트
 
         public void Initialize()
         {
-            _data2.Add(101);
-            _data2.Add(102);
-            _data2.Add(103);
-            _data2.Add(104);
-            _data2.Add(105);
-            int temp = _data2[2];
-
-            _data2.RemoveAt(2); // remove index value
+            _data3.AddLast(101);
+            _data3.AddLast(102);
+            MyLinkedListNode<int> node = _data3.AddLast(103);
+            _data3.AddLast(104);
+            _data3.AddLast(105);
+            _data3.Remove(node);
 
         }
     }
