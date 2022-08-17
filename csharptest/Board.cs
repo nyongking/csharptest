@@ -3,74 +3,111 @@ using System.Collections.Generic;
 using System.Text;
 namespace csharptest
 {
-    class MyLinkedListNode<T>
-    {
-        public T Data;
-        public MyLinkedListNode<T> Next;
-        public MyLinkedListNode<T> Prev;
-
-    }
-
-    class MyLinkedList<T>
-    {
-        public MyLinkedListNode<T> Head = null; // First room
-        public MyLinkedListNode<T> Tail = null; // Last room
-        public int Count = 0;
-
-        public MyLinkedListNode<T> AddLast(T data)
-        {
-            MyLinkedListNode<T> newRoom = new MyLinkedListNode<T>();
-            newRoom.Data = data;
-
-            // if no head in list
-            if (Head == null)
-                Head = newRoom;
-
-            // if tail in list
-            if (Tail != null)
-            {
-                Tail.Next = newRoom;
-                newRoom.Prev = Tail;
-            }
-
-            Tail = newRoom;
-            Count++;
-            return newRoom;
-        }
-        public void Remove(MyLinkedListNode<T> room)
-        {
-            if (Head == room)
-                Head = Head.Next;
-
-            if (Tail == room)
-                Tail = Tail.Prev;
-
-            if (room.Prev != null)
-                room.Prev.Next = room.Next;
-
-            if (room.Next != null)
-                room.Next.Prev = room.Prev;
-
-            Count--;
-
-
-        }
-    }
-
     class Board
     {
-        public int[] _data = new int[25]; // 배열
-        public MyLinkedList<int> _data3 = new MyLinkedList<int>(); // 연결리스트
+        const char CIRCLE = '\u25cf';
+        public TileType[,] _tile;
+        public int _size;
 
-        public void Initialize()
+        public enum TileType
         {
-            _data3.AddLast(101);
-            _data3.AddLast(102);
-            MyLinkedListNode<int> node = _data3.AddLast(103);
-            _data3.AddLast(104);
-            _data3.AddLast(105);
-            _data3.Remove(node);
+            Empty,
+            Wall,
+             
+        }
 
+        public void initialize(int size)
+        {
+            if (size % 2 == 0)
+                return;
+            _tile = new TileType[size, size];
+            _size = size;
+
+            GenerateBinaryTree();
+
+            
+            
+        }
+
+        void GenerateBinaryTree()
+        {
+            // 길을 다 막아버리는 작업
+            for (int y = 0; y < _size; y++)
+            {
+                for (int x = 0; x < _size; x++)
+                {
+                    if (x % 2 == 0 || y % 2 == 0)
+                        _tile[y, x] = TileType.Wall;
+                    else
+                        _tile[y, x] = TileType.Empty;
+                }
+            }
+
+            // 랜덤으로 우측 혹은 아래로 길을 뚫는 작업
+            Random rand = new Random();
+            for (int y = 0; y < _size; y++)
+            {
+                for (int x = 0; x < _size; x++)
+                {
+                    if (x % 2 == 0 || y % 2 == 0)
+                        continue;
+
+                    if (y == _size - 2 && x == _size - 2)
+                        continue;
+
+                    if (y == _size - 2)
+                    {
+                        _tile[y, x + 1] = TileType.Empty;
+                        continue;
+                    }
+
+                    if (x == _size - 2)
+                    {
+                        _tile[y + 1, x] = TileType.Empty;
+                        continue;
+                    }
+
+                    if (rand.Next(0, 2) == 0)
+                    {
+                        _tile[y, x + 1] = TileType.Empty;
+                    }
+
+                    else
+                    {
+                        _tile[y + 1, x] = TileType.Empty;
+                    }
+
+                }
+            }
+        }
+        public void Render()
+        {
+            ConsoleColor prevColor = Console.ForegroundColor; // 이전 상태의 색깔
+
+            for (int y = 0; y < _size; y++)
+            {
+                for (int x = 0; x < _size; x++)
+                {
+                    Console.ForegroundColor = GetTileColor(_tile[y, x]);
+                    Console.Write(CIRCLE);
+                }
+                Console.WriteLine();
+            }
+
+            Console.ForegroundColor = prevColor;
+        }
+
+        ConsoleColor GetTileColor(TileType type)
+        {
+            switch (type)
+            {
+                case TileType.Empty:
+                    return ConsoleColor.Green;
+                case TileType.Wall:
+                    return ConsoleColor.Red;
+                default:
+                    return ConsoleColor.Green;
+            }
         }
     }
 }
