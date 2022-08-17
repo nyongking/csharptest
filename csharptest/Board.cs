@@ -23,13 +23,10 @@ namespace csharptest
             _tile = new TileType[size, size];
             _size = size;
 
-            GenerateBinaryTree();
-
-            
-            
+            GenerateBySideWinder();
         }
 
-        void GenerateBinaryTree()
+        void GenerateBySideWinder()
         {
             // 길을 다 막아버리는 작업
             for (int y = 0; y < _size; y++)
@@ -47,6 +44,7 @@ namespace csharptest
             Random rand = new Random();
             for (int y = 0; y < _size; y++)
             {
+                int count = 1;
                 for (int x = 0; x < _size; x++)
                 {
                     if (x % 2 == 0 || y % 2 == 0)
@@ -70,13 +68,14 @@ namespace csharptest
                     if (rand.Next(0, 2) == 0)
                     {
                         _tile[y, x + 1] = TileType.Empty;
+                        count++;
                     }
-
                     else
                     {
-                        _tile[y + 1, x] = TileType.Empty;
+                        int randomIndex = rand.Next(0, count);
+                        _tile[y + 1, x - randomIndex * 2] = TileType.Empty;
+                        count = 1;
                     }
-
                 }
             }
         }
